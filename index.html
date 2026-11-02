@@ -1118,7 +1118,9 @@
       const st = (n) => STATUSES.find((x) => x[0] === n) || STATUSES[0];
       const days = (d) =>
         d ? Math.ceil((new Date(d + "T23:59:59") - new Date()) / 864e5) : null;
-      function urgency(d) {
+      function urgency(d, status) {
+        if (["Submitted", "Decision received", "Closed"].includes(status))
+          return "";
         let n = days(d);
         if (n === null) return '<span class="muted">No date</span>';
         if (n < 0) return '<span class="urg over">OVERDUE</span>';
@@ -1163,7 +1165,13 @@
           ["Housing", s.housingDeadline],
         ]
           .filter((x) => x[1])
-          .map((x) => ({ school: s.name, type: x[0], date: x[1], id: s.id }));
+          .map((x) => ({
+            school: s.name,
+            type: x[0],
+            date: x[1],
+            id: s.id,
+            status: s.status,
+          }));
       }
       function allDeadlines() {
         return data
@@ -1245,6 +1253,13 @@
               (!filters.region || s.region === filters.region),
           )
           .sort((a, b) => {
+            let doneA = ["Submitted", "Decision received", "Closed"].includes(
+                a.status,
+              ),
+              doneB = ["Submitted", "Decision received", "Closed"].includes(
+                b.status,
+              );
+            if (doneA !== doneB) return doneA ? 1 : -1;
             let ad = days(a.deadline),
               bd = days(b.deadline);
             if (ad !== null && ad < 0 && !(bd !== null && bd < 0)) return -1;
@@ -1275,13 +1290,21 @@
         let ds = allDeadlines(),
           now7 = ds.filter((x) => {
             let n = days(x.date);
-            return n >= 0 && n <= 7;
+            return (
+              n >= 0 &&
+              n <= 7 &&
+              !["Submitted", "Decision received", "Closed"].includes(x.status)
+            );
           }),
           now30 = ds.filter((x) => {
             let n = days(x.date);
             return n >= 0 && n <= 30;
           }),
-          over = ds.filter((x) => days(x.date) < 0);
+          over = ds.filter(
+            (x) =>
+              days(x.date) < 0 &&
+              !["Submitted", "Decision received", "Closed"].includes(x.status),
+          );
         let submitted = data.filter((x) => x.status === "Submitted").length,
           dec = data.filter((x) => x.status === "Decision received").length;
         return `<div class="titlebar"><div><div class="overline">2026–27 application cycle</div><h1>Dashboard</h1></div><button onclick="notifyPermission()">Enable notifications</button></div><div class="cards">${STATUSES.map((x) => `<div class="metric" style="border-top:3px solid ${x[1]}"><span>${x[2]} ${x[0]}</span><b>${data.filter((s) => s.status === x[0]).length}</b></div>`).join("")}</div><div class="grid2"><div class="panel"><h2>Action needed</h2>${listDeadlines([...over, ...now7].slice(0, 12))}</div><div class="panel"><h2>Weekly digest</h2><p><b>${now30.length}</b> deadlines in 30 days</p><p><b>${data.flatMap((s) => s.essays).filter((e) => e.status === "not started").length}</b> unstarted supplements</p><p><b>${submitted}</b> submitted · <b>${dec}</b> decisions received</p></div></div><div class="grid2"><div class="panel"><h2>Next 30 days</h2>${listDeadlines(now30.slice(0, 15))}</div><div class="panel"><h2>Interest nudges</h2>${
@@ -1309,7 +1332,7 @@
           ? a
               .map(
                 (x) =>
-                  `<p><a href="#" onclick="openSchool('${x.id}')">${esc(x.school)}</a> · ${x.type} <span class="muted">${x.date}</span> ${urgency(x.date)}</p>`,
+                  `<p><a href="#" onclick="openSchool('${x.id}')">${esc(x.school)}</a> · ${x.type} <span class="muted">${x.date}</span> ${urgency(x.date, x.status)}</p>`,
               )
               .join("")
           : '<div class="empty">No deadlines here yet.</div>';
@@ -1321,7 +1344,7 @@
         return `<div class="titlebar"><h1>Schools</h1><span class="muted">${filtered().length} of ${data.length}</span></div>${toolbar()}<div class="tablewrap"><table><thead><tr><th>School</th><th>Status</th><th>Pathway</th><th>Deadline</th><th>Days</th><th>Decision release</th><th>Supps</th><th>Region</th><th>Platform</th><th>Applicant portal</th></tr></thead><tbody>${filtered()
           .map((s) => {
             let a = st(s.status);
-            return `<tr class="school" style="--status:${a[1]}"><td><a href="#" onclick="openSchool('${s.id}')"><b>${esc(s.name)}</b></a><br><span class="muted">${esc(s.city)}, ${s.state}</span> ${s.interestRating !== "Not considered" ? `<span class="flag">◆ interest counts</span>` : ""}</td><td>${statusControl(s.status, s.id)}</td><td><select onchange="setPathway('${s.id}',this.value)">${pathOptions(s)}</select></td><td>${s.deadline || "—"}</td><td>${urgency(s.deadline)}</td><td>${esc(s.decisionWindow || "—")}</td><td><span class="supp-badge">${s.suppCount} required</span></td><td>${s.region}</td><td>${s.platform}</td><td>${s.portalUrl ? `<a href="${esc(portalHref(s.portalUrl))}" target="_blank" rel="noopener">Open ↗</a>` : `<a href="#" onclick="openSchool('${s.id}')">Add link</a>`}</td></tr>`;
+            return `<tr class="school" style="--status:${a[1]}"><td><a href="#" onclick="openSchool('${s.id}')"><b>${esc(s.name)}</b></a><br><span class="muted">${esc(s.city)}, ${s.state}</span> ${s.interestRating !== "Not considered" ? `<span class="flag">◆ interest counts</span>` : ""}</td><td>${statusControl(s.status, s.id)}</td><td><select onchange="setPathway('${s.id}',this.value)">${pathOptions(s)}</select></td><td>${s.deadline || "—"}</td><td>${urgency(s.deadline, s.status)}</td><td>${esc(s.decisionWindow || "—")}</td><td><span class="supp-badge">${s.suppCount} required</span></td><td>${s.region}</td><td>${s.platform}</td><td>${s.portalUrl ? `<a href="${esc(portalHref(s.portalUrl))}" target="_blank" rel="noopener">Open ↗</a>` : `<a href="#" onclick="openSchool('${s.id}')">Add link</a>`}</td></tr>`;
           })
           .join("")}</tbody></table></div>`;
       }
@@ -1332,7 +1355,7 @@
               .filter((s) => s.status === a[0])
               .map(
                 (s) =>
-                  `<div class="kcard" draggable="true" ondragstart="event.dataTransfer.setData('text','${s.id}')" onclick="openSchool('${s.id}')"><b>${esc(s.name)}</b><p>${s.round} · ${s.deadline || "No deadline"} ${urgency(s.deadline)}</p><span class="muted">Decision: ${esc(s.decisionWindow)} · ${s.suppCount} supps</span></div>`,
+                  `<div class="kcard" draggable="true" ondragstart="event.dataTransfer.setData('text','${s.id}')" onclick="openSchool('${s.id}')"><b>${esc(s.name)}</b><p>${s.round} · ${s.deadline || "No deadline"} ${urgency(s.deadline, s.status)}</p><span class="muted">Decision: ${esc(s.decisionWindow)} · ${s.suppCount} supps</span></div>`,
               )
               .join("")}</section>`,
         ).join("")}</div>`;
