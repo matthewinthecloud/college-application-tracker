@@ -498,6 +498,58 @@
         font-size: 11px;
         font-weight: 800;
       }
+      .writing-grid {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 12px;
+        margin: 12px 0;
+      }
+      .video-card {
+        border-radius: 14px;
+        padding: 14px;
+        background: linear-gradient(145deg, #181c44, #5b4bd8);
+        color: #fff;
+        box-shadow: 0 12px 28px #312e8130;
+      }
+      .video-card .overline {
+        color: #a5f3fc;
+      }
+      .video-status {
+        display: inline-flex;
+        margin: 7px 0;
+        padding: 4px 8px;
+        border-radius: 99px;
+        background: #ffffff20;
+        font-weight: 800;
+      }
+      .prompt-library {
+        display: grid;
+        gap: 8px;
+      }
+      .prompt-card {
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        padding: 11px;
+        background: color-mix(in srgb, var(--accent) 4%, var(--panel));
+      }
+      .prompt-card summary {
+        cursor: pointer;
+        font-weight: 800;
+      }
+      .prompt-card p {
+        white-space: normal;
+      }
+      .optional-tag {
+        color: #7c3aed;
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .source-note {
+        border-left: 3px solid #f59e0b;
+        padding-left: 9px;
+        color: var(--muted);
+        font-size: 12px;
+      }
       aside {
         background: linear-gradient(
           180deg,
@@ -601,6 +653,11 @@
         color: transparent;
         font-weight: 900;
         letter-spacing: -0.03em;
+      }
+      @media (max-width: 700px) {
+        .writing-grid {
+          grid-template-columns: 1fr;
+        }
       }
       @media (max-width: 600px) {
         .portal-row {
@@ -970,6 +1027,470 @@
             ED2: ["2027-01-01", "Mid-February 2027"],
             RD: ["2027-01-01", "Late March 2027"],
           },
+        },
+      };
+      const prompt = (title, limit, text, optional = false) => ({
+        title,
+        limit,
+        text,
+        optional,
+      });
+      const noVideo = {
+        status: "None",
+        length: "—",
+        method: "—",
+        note: "No general first-year video introduction is published for standard Arts & Sciences applicants.",
+      };
+      const UC_PROMPTS = [
+        prompt(
+          "PIQ 1 · Leadership",
+          350,
+          "Describe an example of your leadership experience in which you have positively influenced others, helped resolve disputes, or contributed to group efforts over time.",
+        ),
+        prompt(
+          "PIQ 2 · Creativity",
+          350,
+          "Every person has a creative side, and it can be expressed in many ways: problem solving, original and innovative thinking, and artistically, to name a few. Describe how you express your creative side.",
+        ),
+        prompt(
+          "PIQ 3 · Talent or skill",
+          350,
+          "What would you say is your greatest talent or skill? How have you developed and demonstrated that talent over time?",
+        ),
+        prompt(
+          "PIQ 4 · Opportunity or barrier",
+          350,
+          "Describe how you have taken advantage of a significant educational opportunity or worked to overcome an educational barrier you have faced.",
+        ),
+        prompt(
+          "PIQ 5 · Challenge",
+          350,
+          "Describe the most significant challenge you have faced and the steps you have taken to overcome this challenge. How has this challenge affected your academic achievement?",
+        ),
+        prompt(
+          "PIQ 6 · Academic subject",
+          350,
+          "Think about an academic subject that inspires you. Describe how you have furthered this interest inside and/or outside of the classroom.",
+        ),
+        prompt(
+          "PIQ 7 · Community",
+          350,
+          "What have you done to make your school or your community a better place?",
+        ),
+        prompt(
+          "PIQ 8 · Strong candidate",
+          350,
+          "Beyond what has already been shared in your application, what do you believe makes you stand out as a strong candidate for admissions to the University of California?",
+        ),
+      ];
+      const WRITING_INFO = {
+        "Harvard University": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "Life experiences",
+              150,
+              "Harvard has long recognized the importance of enrolling a student body with a diversity of perspectives and experiences. How will the life experiences that shaped who you are today enable you to contribute to Harvard?",
+            ),
+            prompt(
+              "Disagreement",
+              150,
+              "Describe a time when you strongly disagreed with someone about an idea or issue. How did you communicate or engage with this person? What did you learn from this experience?",
+            ),
+            prompt(
+              "Activities and responsibilities",
+              150,
+              "Briefly describe any of your extracurricular activities, employment experience, travel, or family responsibilities that have shaped who you are.",
+            ),
+            prompt(
+              "Future",
+              150,
+              "How do you hope to use your Harvard education in the future?",
+            ),
+            prompt(
+              "Roommates",
+              150,
+              "Top 3 things your roommates might like to know about you.",
+            ),
+          ],
+        },
+        "Yale University": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "Academic interest",
+              200,
+              "Tell us about a topic or idea that excites you and is related to one or more academic areas you selected. Why are you drawn to it?",
+            ),
+            prompt(
+              "Create or teach",
+              35,
+              "If you could teach any college course, write a book, or create an original piece of art, what would it be?",
+            ),
+            prompt(
+              "Growth",
+              35,
+              "What is one aspect of yourself that you hope to grow or develop during college?",
+            ),
+            prompt(
+              "Not elsewhere",
+              35,
+              "What is something about you that is not included anywhere else in your application?",
+            ),
+            prompt(
+              "Choose one reflection",
+              400,
+              "Choose one: reflect on a meaningful discussion with someone holding an opposing view; a community to which you feel connected; or an element of your personal experience that will enrich your college experience.",
+            ),
+          ],
+        },
+        "Columbia University": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "Intellectual resources list",
+              100,
+              "List the titles of texts, resources, and outlets that have contributed to your intellectual development outside of academic courses.",
+            ),
+            prompt(
+              "Lived experience",
+              150,
+              "Tell us about an aspect of your life or lived experience that is important to you, and how it has shaped the way you would learn from and contribute to Columbia’s multidimensional and collaborative environment.",
+            ),
+            prompt(
+              "Disagreement",
+              150,
+              "Describe a time when you did not agree with someone. How did you engage with them, and what did you take away from the interaction?",
+            ),
+            prompt(
+              "Adversity",
+              150,
+              "Describe a situation in which you navigated adversity and discuss what you learned from the experience.",
+            ),
+            prompt(
+              "Why Columbia",
+              150,
+              "Why are you interested in attending Columbia University? Consider the aspects you find unique and compelling.",
+            ),
+            prompt(
+              "Area of study",
+              150,
+              "What attracts you to your preferred areas of study at Columbia College?",
+            ),
+          ],
+        },
+        "University of Pennsylvania (Penn)": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "Thank-you note",
+              200,
+              "Write a short thank-you note to someone you have not yet thanked and would like to acknowledge. We encourage you to share this note with that person, if possible, and reflect on the experience.",
+            ),
+            prompt(
+              "Community",
+              200,
+              "How will you explore community at Penn? Consider how Penn will help shape your perspective, and how your experiences and perspective will help shape Penn.",
+            ),
+            prompt(
+              "College of Arts & Sciences",
+              200,
+              "The flexible structure of the College of Arts and Sciences curriculum is designed to inspire exploration, foster connections, and help you create a path of study. What are you curious about, and how would you take advantage of opportunities in the arts and sciences?",
+            ),
+          ],
+        },
+        "Brown University": {
+          video: {
+            status: "Optional",
+            length: "90 seconds maximum",
+            method: "Brown Applicant Portal, Glimpse, or InitialView",
+            note: "A personal introduction; authenticity matters more than production quality.",
+          },
+          prompts: [
+            prompt(
+              "Open Curriculum",
+              250,
+              "How will you use intellectual curiosity, creativity, humility, collaboration, openness, resilience, or other qualities to shape your approach to Brown’s Open Curriculum?",
+            ),
+            prompt(
+              "Growing up",
+              250,
+              "Share how an aspect of your growing up has inspired or challenged you, and what unique contributions this might allow you to make to the Brown community.",
+            ),
+            prompt(
+              "Teach a class",
+              150,
+              "If you could teach a class on any one thing, whether academic or otherwise, what would it be?",
+            ),
+            prompt(
+              "Joy",
+              150,
+              "Whether big or small, mundane or spectacular, tell us about something that brings you joy.",
+            ),
+          ],
+        },
+        "Dartmouth College": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "Why Dartmouth",
+              100,
+              "As you seek admission to Dartmouth’s Class of 2031, what aspects of the college’s academic program, community, and/or campus environment attract your interest? How is Dartmouth a good fit for you?",
+            ),
+            prompt(
+              "Introduce yourself · choose one",
+              250,
+              "Choose one: ‘Let your life speak’—describe the environment in which you were raised and its impact; or ‘Be yourself. Everyone else is taken’—introduce yourself.",
+            ),
+            prompt(
+              "Personal reflection · choose one",
+              250,
+              "Choose one of Dartmouth’s current reflection prompts on excitement, purpose, reading other lives, difficult conversations, your ‘nerdy’ side, or the role of difference in your identity. Confirm the exact choice wording in the application.",
+            ),
+          ],
+        },
+        "Duke University": {
+          video: {
+            status: "Optional",
+            length: "Typically 60–90 seconds",
+            method: "Glimpse, when eligible",
+            note: "Availability may depend on applicant eligibility; confirm in the portal.",
+          },
+          prompts: [
+            prompt(
+              "Why Duke",
+              250,
+              "What is your impression of Duke as a university and community, and why do you believe it is a good match for your goals, values, and interests? You may discuss Trinity College of Arts and Sciences and co-curricular opportunities.",
+            ),
+            prompt(
+              "Community",
+              250,
+              "Tell us about a community that has shaped who you are, any way it has set you apart, and what you’ve learned from being part of it that you hope to bring to Duke.",
+            ),
+            prompt(
+              "Optional response · choose one",
+              250,
+              "Choose an optional prompt on a perspective you would bring, a respectful disagreement, or something that recently excited you. Confirm exact wording in the application.",
+              true,
+            ),
+          ],
+        },
+        "Northwestern University": {
+          video: {
+            status: "Optional",
+            length: "Typically 60–120 seconds",
+            method: "Glimpse, when offered",
+            note: "Confirm availability and specifications in the applicant portal.",
+          },
+          prompts: [
+            prompt(
+              "Context and community",
+              300,
+              "What aspects of your background—identity, school setting, community, household, or otherwise—have most shaped how you see yourself engaging in Northwestern’s community?",
+            ),
+            prompt(
+              "Optional short responses",
+              200,
+              "Answer up to two optional prompts about The Rock, an interdisciplinary project or class, communities you would join, Evanston/Chicago, or a perspective you would add. Confirm exact wording in the application.",
+              true,
+            ),
+          ],
+        },
+        "Cornell University": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "College of Arts & Sciences",
+              650,
+              "Describe an intellectual passion, question, or idea that has captured your attention. Why are you drawn to it, and how would you use the College of Arts & Sciences’ liberal arts curriculum to explore and connect your interests?",
+            ),
+          ],
+        },
+        "Swarthmore College": {
+          video: {
+            status: "Optional",
+            length: "Typically up to 90 seconds",
+            method: "Applicant portal, if offered",
+            note: "Check the portal for the current prompt, deadline, and retake rules.",
+          },
+          prompts: [
+            prompt(
+              "Identity and background",
+              250,
+              "Reflect on aspects of your self-identity or personal background that are most significant to you and how you have grown while navigating differences or collaborating across communities.",
+            ),
+            prompt(
+              "Intellectual curiosity",
+              250,
+              "Tell us about a topic that has fascinated you recently, what made you curious, connections across your interests, and what encourages further exploration.",
+            ),
+          ],
+        },
+        "Georgetown University": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "Activity",
+              250,
+              "Briefly discuss the significance to you of the school or summer activity in which you have been most involved.",
+            ),
+            prompt(
+              "Different viewpoint",
+              250,
+              "In all our lives, we interact with people who hold different viewpoints than our own. Describe such an event you experienced. What did you learn from the experience?",
+            ),
+            prompt(
+              "Personal essay",
+              650,
+              "Write a personal or creative essay that best describes you and reflects on your personal background, experiences, skills, and talents.",
+            ),
+            prompt(
+              "College of Arts & Sciences",
+              500,
+              "Describe your interest in studying at Georgetown’s College of Arts & Sciences, connecting your academic interests with its integrated liberal arts education, research, and Jesuit tradition. Confirm exact wording in the application.",
+            ),
+          ],
+        },
+        "UC Berkeley": { video: noVideo, prompts: UC_PROMPTS },
+        UCLA: { video: noVideo, prompts: UC_PROMPTS },
+        "UC San Diego (UCSD)": { video: noVideo, prompts: UC_PROMPTS },
+        "UC Davis": { video: noVideo, prompts: UC_PROMPTS },
+        "UC Irvine": { video: noVideo, prompts: UC_PROMPTS },
+        "UNC Chapel Hill": {
+          video: noVideo,
+          prompts: [],
+          note: "No UNC-specific writing supplement is published for the 2026–27 standard first-year application.",
+        },
+        "Vanderbilt University": {
+          video: {
+            status: "Optional",
+            length: "Typically 60–90 seconds",
+            method: "Glimpse, when eligible",
+            note: "Confirm eligibility and the current deadline in the portal.",
+          },
+          prompts: [
+            prompt(
+              "Dare to Grow",
+              250,
+              "Reflect on how an aspect of your identity, culture, or background has shaped your personal growth and how it will influence the way you contribute at Vanderbilt. Confirm exact wording in the application.",
+            ),
+          ],
+        },
+        "Tufts University": {
+          video: {
+            status: "Optional / check portal",
+            length: "Typically 60–90 seconds",
+            method: "Portal or Glimpse, when offered",
+            note: "Availability may vary; follow the portal instructions.",
+          },
+          prompts: [
+            prompt(
+              "Engagement with Tufts",
+              150,
+              "Please describe how you have learned about and engaged with Tufts during your college search process.",
+            ),
+            prompt(
+              "Arts & Sciences assignment",
+              200,
+              "Tell us about one of your favorite school assignments in the past two years. What was it, and why did you enjoy it?",
+            ),
+          ],
+        },
+        "Emory University": {
+          video: {
+            status: "Check portal",
+            length: "Not universally published",
+            method: "Applicant portal, if offered",
+            note: "No standard required video is published; follow any applicant-specific portal instructions.",
+          },
+          prompts: [
+            prompt(
+              "Academic interests",
+              200,
+              "What academic areas are you interested in exploring at Emory, and why? Confirm the application’s exact wording and limit.",
+            ),
+            prompt(
+              "Get to know you · choose one",
+              150,
+              "Choose one of Emory’s current personal reflection prompts. Confirm the exact options in the application.",
+            ),
+          ],
+        },
+        "Washington University in St. Louis (WashU)": {
+          video: {
+            status: "Optional",
+            length: "90 seconds maximum",
+            method: "Glimpse or approved video submission",
+            note: "Use the video to add personality or context not shown elsewhere.",
+          },
+          prompts: [
+            prompt(
+              "Academic interests",
+              250,
+              "Please tell us what you are interested in studying at college and why. Undecided? Tell us what excites you about the academic division you selected. All first-year students enter officially undeclared and work with advisors to discover their academic passions.",
+            ),
+          ],
+        },
+        "New York University (NYU)": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "Bridge builder",
+              250,
+              "NYU seeks students who can help bridge divides. Tell us how your experiences have helped you understand the qualities and efforts needed to bridge differences so people can better learn and work together.",
+              true,
+            ),
+          ],
+        },
+        "Northeastern University": {
+          video: noVideo,
+          prompts: [],
+          note: "No Northeastern writing supplement is published for most standard first-year applicants.",
+        },
+        "Wesleyan University": {
+          video: noVideo,
+          prompts: [],
+          note: "No required Wesleyan writing supplement is published for standard first-year applicants.",
+        },
+        "Johns Hopkins University (JHU)": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "Building bridges",
+              350,
+              "At Johns Hopkins, community is built through dialogue, collaboration, and a willingness to engage across differences. Drawing on your experiences, what have you learned about engaging across differences, and how has it shaped how you think about building bridges, enhancing community, and working with others?",
+            ),
+          ],
+        },
+        "Villanova University": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "Choose one Villanova essay",
+              250,
+              "Choose one of five prompts on advancing equity and justice, a life lesson, why Villanova could become your new home, technology/AI in service of the common good, or a time someone borrowed your strength. Confirm the exact wording in Villanova’s application.",
+            ),
+          ],
+        },
+        "Lehigh University": {
+          video: noVideo,
+          prompts: [
+            prompt(
+              "Discovering Lehigh",
+              200,
+              "How did you first learn about Lehigh University, and what motivated you to apply?",
+            ),
+            prompt(
+              "Something great",
+              200,
+              "What is something great happening in your life right now?",
+            ),
+            prompt(
+              "Arts & Sciences fit",
+              200,
+              "How will the College of Arts and Sciences, your intended program, and Lehigh’s opportunities help you achieve your goals? Confirm exact wording in the application.",
+            ),
+          ],
         },
       };
       const uid = () => Math.random().toString(36).slice(2, 10);
@@ -1442,11 +1963,20 @@
         let href = portalHref(s.portalUrl);
         return `<div class="portal-card"><div class="overline" style="color:#a5f3fc">Applicant portal</div><h2 style="margin:4px 0;color:white">Your direct login link</h2><div class="portal-row"><input type="url" value="${esc(s.portalUrl)}" placeholder="Paste the applicant portal link when it arrives" onchange="upd('${s.id}','portalUrl',this.value)">${href ? `<a href="${esc(href)}" target="_blank" rel="noopener">Open portal ↗</a>` : `<button onclick="toast('Paste your portal link first')">Open portal ↗</button>`}<button onclick="copyPortal('${s.id}')">Copy</button></div><label class="portal-status"><input type="checkbox" ${s.portalLogin ? "checked" : ""} onchange="upd('${s.id}','portalLogin',this.checked)"> Login created</label></div>`;
       }
+      function writingPanel(s) {
+        let info = WRITING_INFO[s.name] || {
+            video: noVideo,
+            prompts: [],
+            note: "Prompt data has not been added for this custom school.",
+          },
+          v = info.video || noVideo;
+        return `<div class="writing-grid"><div class="video-card"><div class="overline">Video introduction</div><span class="video-status">${esc(v.status)}</span><h3 style="margin:6px 0;color:white">${esc(v.length)}</h3><p>${esc(v.method)}</p><small>${esc(v.note)}</small></div><div><h2>2026–27 prompt library</h2><div class="prompt-library">${info.prompts.length ? info.prompts.map((p, i) => `<details class="prompt-card"><summary>${esc(p.title)} · ${p.limit} words ${p.optional ? '<span class="optional-tag">OPTIONAL</span>' : ""}</summary><p>${esc(p.text)}</p><button onclick="addOfficialPrompt('${s.id}',${i});event.preventDefault()">+ Add to my tracker</button></details>`).join("") : `<div class="empty">${esc(info.note || "No school-specific prompts published.")}</div>`}</div><p class="source-note">Use this as a planning copy. The application portal is authoritative; confirm exact wording and limits before submitting.</p></div></div>`;
+      }
       function detailTab(s) {
         if (tab === "Overview")
           return `<div class="pathway-card"><div class="overline" style="color:#dbeafe">Application pathway</div><div class="grid3"><div><select onchange="setPathway('${s.id}',this.value)">${pathOptions(s)}</select></div><div><b>Deadline</b><br>${s.deadline}</div><div><b>Decision release</b><br><span class="decision-window">${esc(s.decisionWindow)}</span></div></div></div>${portalCard(s)}<div class="panel" style="margin-top:12px"><p><span class="supp-badge">${s.suppCount} required supplement${s.suppCount === 1 ? "" : "s"}</span></p><p class="muted">${esc(s.suppNote)}</p><div class="formgrid">${field(s, "name", "School name")}${field(s, "city", "City")}${field(s, "state", "State")}${field(s, "region", "Region")}${field(s, "distance", "Distance from home")}${field(s, "scholarshipDeadline", "Scholarship deadline", "date")}${field(s, "honorsDeadline", "Honors deadline", "date")}${field(s, "portfolioDeadline", "Portfolio deadline", "date")}${field(s, "interviewDeadline", "Interview request deadline", "date")}${field(s, "platform", "Application platform", "select", ["Common App", "Coalition", "Institutional portal", "UC application", "Other"])}${field(s, "fee", "Application fee", "number")}${field(s, "feeWaiver", "Fee waiver used", "checkbox")}${field(s, "concerns", "Concerns / red flags", "textarea")}<div class="field wide"><label>Status</label>${statusControl(s.status, s.id)}</div></div><p class="muted">${esc(s.dataNote)}</p><button class="danger" onclick="deleteSchool('${s.id}')">Delete school</button></div>`;
         if (tab === "Essays")
-          return `<div class="panel"><p><span class="supp-badge">${s.suppCount} required for Arts & Sciences</span></p><p class="muted">${esc(s.suppNote)}</p><h2>Main personal essay</h2><div class="formgrid">${nestedField(s, "mainEssay.status", "Status", "select", ["not started", "drafting", "with reviewer", "revised", "final"])}${nestedField(s, "mainEssay.drafts", "Draft count", "number")}${nestedField(s, "mainEssay.lastEdited", "Last edited", "date")}${nestedField(s, "mainEssay.reviewer", "Reviewer")}${nestedField(s, "mainEssay.revisionNotes", "Revision notes", "textarea")}</div><h2>Supplemental essays</h2>${s.essays.map((e, i) => essayForm(s, e, i)).join("")}<button onclick="addEssay('${s.id}')">+ Add supplement</button></div>`;
+          return `<div class="panel"><p><span class="supp-badge">${s.suppCount} required for Arts & Sciences</span></p><p class="muted">${esc(s.suppNote)}</p>${writingPanel(s)}<h2>Main personal essay</h2><div class="formgrid">${nestedField(s, "mainEssay.status", "Status", "select", ["not started", "drafting", "with reviewer", "revised", "final"])}${nestedField(s, "mainEssay.drafts", "Draft count", "number")}${nestedField(s, "mainEssay.lastEdited", "Last edited", "date")}${nestedField(s, "mainEssay.reviewer", "Reviewer")}${nestedField(s, "mainEssay.revisionNotes", "Revision notes", "textarea")}</div><h2>My supplemental essay tracker</h2>${s.essays.map((e, i) => essayForm(s, e, i)).join("")}<button onclick="addEssay('${s.id}')">+ Add custom supplement</button></div>`;
         if (tab === "Interviews")
           return `<div class="panel"><div class="formgrid">${nestedField(s, "interview.policy", "Policy", "select", ["evaluative", "informational", "offered", "not offered"])}${nestedField(s, "interview.requested", "Requested", "checkbox")}${nestedField(s, "interview.date", "Scheduled date", "datetime-local")}${nestedField(s, "interview.name", "Interviewer name")}${nestedField(s, "interview.thanks", "Thank-you sent", "checkbox")}${field(s, "portfolioRequired", "Portfolio / audition required", "checkbox")}${field(s, "portfolioSubmitted", "Portfolio submitted", "date")}${field(s, "honorsRequired", "Honors college required", "checkbox")}${field(s, "honorsSubmitted", "Honors application submitted", "checkbox")}${field(s, "scholarshipCount", "Separate scholarship count", "number")}${field(s, "scholarshipsSubmitted", "Scholarships submitted", "checkbox")}</div></div>`;
         if (tab === "Documents") return docsTab(s);
@@ -1581,6 +2111,25 @@
           });
         save();
         render();
+      }
+      function addOfficialPrompt(id, index) {
+        let s = data.find((x) => x.id === id),
+          p = WRITING_INFO[s.name]?.prompts?.[index];
+        if (!p) return;
+        if (s.essays.some((e) => e.prompt === p.text))
+          return toast("Prompt already added");
+        s.essays.push({
+          title: p.title,
+          prompt: p.text,
+          wordLimit: p.limit,
+          status: "not started",
+          drafts: 0,
+          reviewer: "",
+          revisionNotes: p.optional ? "Optional prompt" : "",
+        });
+        save();
+        render();
+        toast("Prompt added to your tracker");
       }
       function addInterest(id) {
         let type = prompt("Action type (visit, webinar, email, fair, etc.)");
