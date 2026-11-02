@@ -1,0 +1,1763 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>College Application Tracker</title>
+    <style>
+      :root {
+        --bg: #f5f6f8;
+        --panel: #fff;
+        --text: #18202b;
+        --muted: #687386;
+        --line: #dfe3e8;
+        --accent: #2457d6;
+        --nav: #111827;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          14px/1.4 Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      body.dark {
+        --bg: #0f131a;
+        --panel: #171d27;
+        --text: #edf1f7;
+        --muted: #a5afbe;
+        --line: #303846;
+        --nav: #090c12;
+        --accent: #7aa2ff;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+        color: inherit;
+      }
+      button,
+      .btn {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 7px;
+        padding: 7px 10px;
+        cursor: pointer;
+      }
+      .primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .danger {
+        color: #b91c1c;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: 210px 1fr;
+        min-height: 100vh;
+      }
+      aside {
+        background: var(--nav);
+        color: #dbe2ee;
+        padding: 18px 12px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
+      .brand {
+        font-size: 17px;
+        font-weight: 750;
+        padding: 3px 10px 18px;
+      }
+      .nav button {
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        border: 0;
+        color: #aeb8c8;
+        padding: 9px 11px;
+        margin: 2px 0;
+      }
+      .nav button.active,
+      .nav button:hover {
+        background: #243044;
+        color: #fff;
+      }
+      .shell {
+        min-width: 0;
+      }
+      header {
+        height: 58px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 18px;
+        position: sticky;
+        top: 0;
+        z-index: 8;
+      }
+      .search {
+        flex: 1;
+        max-width: 520px;
+        border: 1px solid var(--line);
+        background: var(--bg);
+        border-radius: 8px;
+        padding: 8px 11px;
+      }
+      main {
+        padding: 18px;
+        max-width: 1600px;
+      }
+      .titlebar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      h1 {
+        font-size: 23px;
+        margin: 0;
+      }
+      h2 {
+        font-size: 17px;
+        margin: 0 0 10px;
+      }
+      h3 {
+        font-size: 14px;
+        margin: 15px 0 7px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(120px, 1fr));
+        gap: 9px;
+      }
+      .metric,
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 13px;
+      }
+      .metric b {
+        display: block;
+        font-size: 24px;
+        margin-top: 6px;
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .grid3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-bottom: 10px;
+      }
+      .toolbar input,
+      .toolbar select,
+      .field input,
+      .field select,
+      .field textarea {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 7px;
+        width: 100%;
+      }
+      .toolbar input,
+      .toolbar select {
+        width: auto;
+      }
+      .tablewrap {
+        overflow: auto;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 1100px;
+      }
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 7px 9px;
+        text-align: left;
+        height: 44px;
+        white-space: nowrap;
+      }
+      th {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--muted);
+        position: sticky;
+        top: 0;
+        background: var(--panel);
+        z-index: 2;
+      }
+      tr.school {
+        border-left: 4px solid var(--status);
+      }
+      tr.school td {
+        background: color-mix(in srgb, var(--status) 10%, var(--panel));
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        border: 1px solid currentColor;
+        border-radius: 99px;
+        padding: 3px 7px;
+        font-size: 12px;
+        font-weight: 650;
+      }
+      .pillselect {
+        border: 0;
+        background: transparent;
+        font-weight: 650;
+        max-width: 150px;
+      }
+      .urg {
+        font-size: 11px;
+        font-weight: 750;
+        padding: 3px 6px;
+        border-radius: 99px;
+        background: #e5e7eb;
+        color: #374151;
+      }
+      .urg.amber {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .urg.orange {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .urg.red {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+      .urg.over {
+        background: #7f1d1d;
+        color: #fff;
+      }
+      .dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #dc2626;
+        animation: pulse 1.2s infinite;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.25;
+        }
+      }
+      .kanban {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(230px, 1fr));
+        gap: 10px;
+        overflow: auto;
+        padding-bottom: 8px;
+      }
+      .column {
+        background: color-mix(in srgb, var(--c) 8%, var(--panel));
+        border-top: 4px solid var(--c);
+        border-radius: 8px;
+        padding: 8px;
+        min-height: 340px;
+      }
+      .column h2 {
+        font-size: 13px;
+      }
+      .kcard {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 7px 0;
+        cursor: grab;
+      }
+      .calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+      .day {
+        min-height: 110px;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: 6px;
+      }
+      .day.off {
+        opacity: 0.45;
+      }
+      .event {
+        font-size: 11px;
+        padding: 3px 5px;
+        margin: 3px 0;
+        border-radius: 4px;
+        background: #dbeafe;
+        color: #1e40af;
+        overflow: hidden;
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        border-bottom: 1px solid var(--line);
+        margin-bottom: 14px;
+        overflow: auto;
+      }
+      .tabs button {
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+      }
+      .tabs button.active {
+        color: var(--accent);
+        border-bottom: 2px solid var(--accent);
+      }
+      .formgrid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .field label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 4px;
+      }
+      .wide {
+        grid-column: 1/-1;
+      }
+      .repeat {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 8px 0;
+      }
+      .drawer {
+        position: fixed;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: min(760px, 100%);
+        background: var(--panel);
+        box-shadow: -10px 0 35px #0003;
+        z-index: 20;
+        padding: 18px;
+        overflow: auto;
+      }
+      .drawerhead {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: -18px;
+        background: var(--panel);
+        padding: 12px 0;
+        z-index: 2;
+      }
+      .empty {
+        text-align: center;
+        padding: 35px;
+        color: var(--muted);
+      }
+      .flag {
+        color: #7c3aed;
+        font-size: 11px;
+      }
+      .mobileNav {
+        display: none;
+      }
+      .toast {
+        position: fixed;
+        bottom: 18px;
+        right: 18px;
+        background: #111827;
+        color: #fff;
+        padding: 9px 13px;
+        border-radius: 7px;
+        z-index: 40;
+      }
+      .check {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+      }
+      .overline {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      :root {
+        --bg: #f3f5fb;
+        --panel: #ffffffdf;
+        --text: #11182a;
+        --muted: #667085;
+        --line: #dfe4ef;
+        --accent: #6157e8;
+        --accent2: #06b6d4;
+        --nav: #11142d;
+      }
+      body {
+        background:
+          radial-gradient(circle at 85% -5%, #b7e8ff 0, transparent 28%),
+          radial-gradient(circle at 20% 0, #ddd8ff 0, transparent 30%),
+          var(--bg);
+      }
+      .brand {
+        font-size: 19px;
+        font-weight: 850;
+        background: linear-gradient(90deg, #a5b4fc, #67e8f9);
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+      .brand:after {
+        content: " ✦";
+        color: #67e8f9;
+      }
+      .metric,
+      .panel {
+        border-color: #fff9;
+        border-radius: 14px;
+        box-shadow: 0 12px 35px #2430580c;
+        backdrop-filter: blur(14px);
+      }
+      .kcard {
+        border-color: #fff9;
+        border-radius: 12px;
+        box-shadow: 0 8px 22px #11182712;
+        transition: 0.18s;
+      }
+      .kcard:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px #11182720;
+      }
+      .primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        border: 0;
+      }
+      .tablewrap {
+        border-radius: 14px;
+        box-shadow: 0 14px 40px #25305a0d;
+      }
+      .pathway-card {
+        background: linear-gradient(135deg, #6257e8, #129bc3);
+        color: white;
+        border-radius: 14px;
+        padding: 15px;
+        box-shadow: 0 14px 30px #5253cb33;
+      }
+      .pathway-card select {
+        background: #ffffff22;
+        color: white;
+        border: 1px solid #ffffff66;
+      }
+      .pathway-card option {
+        color: #111;
+      }
+      .decision-window {
+        font-weight: 800;
+        font-size: 16px;
+      }
+      .supp-badge {
+        display: inline-flex;
+        background: #eceafe;
+        color: #4f46e5;
+        border-radius: 99px;
+        padding: 4px 8px;
+        font-size: 11px;
+        font-weight: 800;
+      }
+      aside {
+        background: linear-gradient(
+          180deg,
+          #10132e 0%,
+          #17123b 55%,
+          #102f46 100%
+        );
+        box-shadow: 12px 0 40px #312e8130;
+      }
+      header {
+        background: #ffffffb8;
+        backdrop-filter: blur(18px);
+        box-shadow: 0 8px 30px #28315d0b;
+      }
+      .nav button {
+        border-radius: 10px;
+        transition: 0.18s;
+      }
+      .nav button.active {
+        background: linear-gradient(90deg, #6558e8aa, #14b8a699);
+        box-shadow: 0 8px 20px #11182725;
+      }
+      .portal-card {
+        margin-top: 12px;
+        padding: 16px;
+        border-radius: 15px;
+        background: linear-gradient(
+          135deg,
+          #111936 0%,
+          #2e2b75 55%,
+          #087f8c 100%
+        );
+        color: #fff;
+        box-shadow: 0 16px 38px #24206335;
+        position: relative;
+        overflow: hidden;
+      }
+      .portal-card:after {
+        content: "↗";
+        position: absolute;
+        right: 18px;
+        top: 7px;
+        font-size: 56px;
+        font-weight: 900;
+        color: #ffffff12;
+        transform: rotate(-8deg);
+      }
+      .portal-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .portal-row input {
+        min-width: 0;
+        border: 1px solid #ffffff38;
+        background: #ffffff16;
+        color: #fff;
+        border-radius: 9px;
+        padding: 10px;
+      }
+      .portal-row input::placeholder {
+        color: #dbeafeaa;
+      }
+      .portal-row button,
+      .portal-row a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        border: 1px solid #ffffff50;
+        background: #ffffff1f;
+        color: #fff;
+        border-radius: 9px;
+        padding: 9px 12px;
+        font-weight: 750;
+      }
+      .portal-status {
+        display: inline-flex;
+        gap: 7px;
+        align-items: center;
+        margin-top: 10px;
+        background: #ffffff12;
+        border-radius: 99px;
+        padding: 5px 9px;
+      }
+      .portal-status input {
+        accent-color: #2dd4bf;
+      }
+      .metric {
+        transition:
+          0.2s transform,
+          0.2s box-shadow;
+      }
+      .metric:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 40px #4f46e51a;
+      }
+      .titlebar h1 {
+        background: linear-gradient(90deg, #29246f, #1687a4);
+        -webkit-background-clip: text;
+        color: transparent;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+      }
+      @media (max-width: 600px) {
+        .portal-row {
+          grid-template-columns: 1fr;
+        }
+        .portal-row button,
+        .portal-row a {
+          justify-content: center;
+        }
+      }
+      @media (max-width: 900px) {
+        .app {
+          display: block;
+        }
+        aside {
+          display: none;
+        }
+        .mobileNav {
+          display: block;
+        }
+        .cards {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .grid2,
+        .grid3,
+        .formgrid {
+          grid-template-columns: 1fr;
+        }
+        .kanban {
+          display: block;
+        }
+        .column {
+          display: none;
+        }
+        .column.mobile-active {
+          display: block;
+        }
+        .toolbar input,
+        .toolbar select {
+          width: 100%;
+        }
+        main {
+          padding: 12px;
+        }
+        header {
+          padding: 0 10px;
+        }
+        .hide-sm {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      const STATUSES = [
+        ["Not started", "#9CA3AF", "○"],
+        ["Researching", "#8B5CF6", "⌕"],
+        ["In progress", "#F59E0B", "✎"],
+        ["Ready to submit", "#F97316", "☷"],
+        ["Submitted", "#10B981", "✓"],
+        ["Decision received", "#3B82F6", "✉"],
+        ["Closed", "#6B7280", "S̶"],
+      ];
+      const names = [
+        [
+          "Harvard University",
+          "Cambridge",
+          "MA",
+          "Northeast",
+          "Not considered",
+        ],
+        ["Yale University", "New Haven", "CT", "Northeast", "Not considered"],
+        [
+          "Columbia University",
+          "New York",
+          "NY",
+          "Northeast",
+          "Not considered",
+        ],
+        [
+          "University of Pennsylvania (Penn)",
+          "Philadelphia",
+          "PA",
+          "Northeast",
+          "Not considered",
+        ],
+        ["Brown University", "Providence", "RI", "Northeast", "Not considered"],
+        ["Dartmouth College", "Hanover", "NH", "Northeast", "Considered"],
+        ["Duke University", "Durham", "NC", "South", "Considered"],
+        ["Northwestern University", "Evanston", "IL", "Midwest", "Considered"],
+        ["Cornell University", "Ithaca", "NY", "Northeast", "Not considered"],
+        [
+          "Swarthmore College",
+          "Swarthmore",
+          "PA",
+          "Northeast",
+          "Not considered",
+        ],
+        [
+          "Georgetown University",
+          "Washington",
+          "DC",
+          "Mid-Atlantic",
+          "Not considered",
+        ],
+        ["UC Berkeley", "Berkeley", "CA", "West", "Not considered"],
+        ["UCLA", "Los Angeles", "CA", "West", "Not considered"],
+        ["UNC Chapel Hill", "Chapel Hill", "NC", "South", "Not considered"],
+        ["Vanderbilt University", "Nashville", "TN", "South", "Not considered"],
+        ["Tufts University", "Medford", "MA", "Northeast", "Considered"],
+        ["Emory University", "Atlanta", "GA", "South", "Not considered"],
+        [
+          "Washington University in St. Louis (WashU)",
+          "St. Louis",
+          "MO",
+          "Midwest",
+          "Considered",
+        ],
+        [
+          "New York University (NYU)",
+          "New York",
+          "NY",
+          "Northeast",
+          "Considered",
+        ],
+        ["Northeastern University", "Boston", "MA", "Northeast", "Considered"],
+        [
+          "Wesleyan University",
+          "Middletown",
+          "CT",
+          "Northeast",
+          "Not considered",
+        ],
+        ["UC San Diego (UCSD)", "San Diego", "CA", "West", "Not considered"],
+        ["UC Davis", "Davis", "CA", "West", "Not considered"],
+        ["UC Irvine", "Irvine", "CA", "West", "Not considered"],
+        [
+          "Johns Hopkins University (JHU)",
+          "Baltimore",
+          "MD",
+          "Mid-Atlantic",
+          "Not considered",
+        ],
+        [
+          "Villanova University",
+          "Villanova",
+          "PA",
+          "Northeast",
+          "Not considered",
+        ],
+        ["Lehigh University", "Bethlehem", "PA", "Northeast", "Important"],
+      ];
+      const SCHOOL_INFO = {
+        "Harvard University": {
+          s: 5,
+          n: "Five required short responses; Arts & Sciences is Harvard College.",
+          p: {
+            REA: ["2026-11-01", "Mid-December 2026"],
+            RD: ["2027-01-01", "Late March 2027"],
+          },
+        },
+        "Yale University": {
+          s: 5,
+          n: "Required short takes and essays for Yale College.",
+          p: {
+            REA: ["2026-11-01", "Mid-December 2026"],
+            RD: ["2027-01-02", "By April 1, 2027"],
+          },
+        },
+        "Columbia University": {
+          s: 6,
+          n: "Columbia College writing questions, including list responses.",
+          p: {
+            ED1: ["2026-11-01", "Mid-December 2026"],
+            RD: ["2027-01-01", "Late March 2027"],
+          },
+        },
+        "University of Pennsylvania (Penn)": {
+          s: 3,
+          n: "College of Arts & Sciences: shared Penn responses plus school-specific response.",
+          p: {
+            ED1: ["2026-11-01", "Mid-December 2026"],
+            RD: ["2027-01-05", "By April 1, 2027"],
+          },
+        },
+        "Brown University": {
+          s: 4,
+          n: "Brown required essays and short-answer responses.",
+          p: {
+            ED1: ["2026-11-01", "Mid-December 2026"],
+            RD: ["2027-01-05", "Late March 2027"],
+          },
+        },
+        "Dartmouth College": {
+          s: 3,
+          n: "One required response plus two selected prompts.",
+          p: {
+            ED1: ["2026-11-01", "Mid-December 2026"],
+            RD: ["2027-01-01", "Late March 2027"],
+          },
+        },
+        "Duke University": {
+          s: 2,
+          n: "Trinity College required response; optional identity/perspective prompt not counted.",
+          p: {
+            ED1: ["2026-11-02", "Mid-December 2026"],
+            RD: ["2027-01-04", "Late March 2027"],
+          },
+        },
+        "Northwestern University": {
+          s: 1,
+          n: "One required response; optional short responses are not counted.",
+          p: {
+            ED1: ["2026-11-01", "Mid-December 2026"],
+            RD: ["2027-01-04", "Late March 2027"],
+          },
+        },
+        "Cornell University": {
+          s: 1,
+          n: "College of Arts & Sciences writing supplement.",
+          p: {
+            ED1: ["2026-11-01", "Mid-December 2026"],
+            RD: ["2027-01-02", "Late March 2027"],
+          },
+        },
+        "Swarthmore College": {
+          s: 2,
+          n: "Two required Swarthmore short responses.",
+          p: {
+            ED1: ["2026-11-15", "Mid-December 2026"],
+            ED2: ["2027-01-04", "Mid-February 2027"],
+            RD: ["2027-01-04", "Mid-March 2027"],
+          },
+        },
+        "Georgetown University": {
+          s: 4,
+          n: "Georgetown College essays and short responses in its own application.",
+          p: {
+            EA: ["2026-11-01", "December 15, 2026"],
+            RD: ["2027-01-10", "April 1, 2027"],
+          },
+        },
+        "UC Berkeley": {
+          s: 4,
+          n: "Four UC Personal Insight Questions; same UC application for Letters & Science.",
+          p: { RD: ["2026-11-30", "Late March 2027"] },
+        },
+        UCLA: {
+          s: 4,
+          n: "Four UC Personal Insight Questions; same UC application for Letters & Science.",
+          p: { RD: ["2026-11-30", "Mid-to-late March 2027"] },
+        },
+        "UNC Chapel Hill": {
+          s: 2,
+          n: "Two required short-answer responses for first-year applicants.",
+          p: {
+            EA: ["2026-10-15", "By January 31, 2027"],
+            RD: ["2027-01-15", "By March 31, 2027"],
+          },
+        },
+        "Vanderbilt University": {
+          s: 1,
+          n: "One required Vanderbilt short response for Arts & Science.",
+          p: {
+            ED1: ["2026-11-01", "Mid-December 2026"],
+            ED2: ["2027-01-01", "Mid-February 2027"],
+            RD: ["2027-01-01", "Late March 2027"],
+          },
+        },
+        "Tufts University": {
+          s: 2,
+          n: "Two required Tufts short responses for Arts & Sciences.",
+          p: {
+            ED1: ["2026-11-02", "Mid-December 2026"],
+            ED2: ["2027-01-04", "Early February 2027"],
+            RD: ["2027-01-04", "By April 1, 2027"],
+          },
+        },
+        "Emory University": {
+          s: 2,
+          n: "Two required short-answer responses; applies to Emory College.",
+          p: {
+            ED1: ["2026-11-01", "By December 15, 2026"],
+            ED2: ["2027-01-01", "By February 15, 2027"],
+            RD: ["2027-01-01", "By April 1, 2027"],
+          },
+        },
+        "Washington University in St. Louis (WashU)": {
+          s: 1,
+          n: "One required WashU supplemental response for Arts & Sciences.",
+          p: {
+            EA: ["2026-11-02", "By December 23, 2026"],
+            ED1: ["2026-11-02", "By December 11, 2026"],
+            ED2: ["2027-01-04", "By February 12, 2027"],
+            RD: ["2027-01-04", "By April 1, 2027"],
+          },
+        },
+        "New York University (NYU)": {
+          s: 0,
+          n: "No required writing supplement currently counted for College of Arts & Science; optional response may appear.",
+          p: {
+            ED1: ["2026-11-01", "December 15, 2026"],
+            ED2: ["2027-01-01", "February 15, 2027"],
+            RD: ["2027-01-05", "April 1, 2027"],
+          },
+        },
+        "Northeastern University": {
+          s: 0,
+          n: "No required supplemental essay currently counted.",
+          p: {
+            EA: ["2026-11-01", "By February 15, 2027"],
+            ED1: ["2026-11-01", "By January 1, 2027"],
+            ED2: ["2027-01-01", "By March 1, 2027"],
+            RD: ["2027-01-01", "By April 1, 2027"],
+          },
+        },
+        "Wesleyan University": {
+          s: 0,
+          n: "No required supplemental essay currently counted; optional materials are separate.",
+          p: {
+            ED1: ["2026-11-15", "Mid-December 2026"],
+            ED2: ["2027-01-01", "Mid-February 2027"],
+            RD: ["2027-01-01", "Late March 2027"],
+          },
+        },
+        "UC San Diego (UCSD)": {
+          s: 4,
+          n: "Four UC Personal Insight Questions; same UC application.",
+          p: { RD: ["2026-11-30", "By March 31, 2027"] },
+        },
+        "UC Davis": {
+          s: 4,
+          n: "Four UC Personal Insight Questions; same UC application.",
+          p: { RD: ["2026-11-30", "By March 31, 2027"] },
+        },
+        "UC Irvine": {
+          s: 4,
+          n: "Four UC Personal Insight Questions; same UC application.",
+          p: { RD: ["2026-11-30", "By March 31, 2027"] },
+        },
+        "Johns Hopkins University (JHU)": {
+          s: 1,
+          n: "One required Hopkins supplemental essay for Arts & Sciences.",
+          p: {
+            ED1: ["2026-11-01", "Mid-December 2026"],
+            ED2: ["2027-01-02", "Mid-February 2027"],
+            RD: ["2027-01-02", "Mid-to-late March 2027"],
+          },
+        },
+        "Villanova University": {
+          s: 1,
+          n: "Required Villanova writing responses; College of Liberal Arts and Sciences.",
+          p: {
+            EA: ["2026-11-01", "By January 20, 2027"],
+            ED1: ["2026-11-01", "By December 15, 2026"],
+            ED2: ["2027-01-15", "By February 15, 2027"],
+            RD: ["2027-01-15", "By April 1, 2027"],
+          },
+        },
+        "Lehigh University": {
+          s: 3,
+          n: "College of Arts & Sciences supplemental responses.",
+          p: {
+            ED1: ["2026-11-01", "Mid-December 2026"],
+            ED2: ["2027-01-01", "Mid-February 2027"],
+            RD: ["2027-01-01", "Late March 2027"],
+          },
+        },
+      };
+      const uid = () => Math.random().toString(36).slice(2, 10);
+      const iso = () => new Date().toISOString();
+      function seed() {
+        return names.map((x) => {
+          let inf = SCHOOL_INFO[x[0]],
+            round = Object.keys(inf.p).includes("RD")
+              ? "RD"
+              : Object.keys(inf.p)[0],
+            path = inf.p[round];
+          return {
+            id: uid(),
+            name: x[0],
+            city: x[1],
+            state: x[2],
+            region: x[3],
+            interestRating: x[4],
+            distance: "",
+            round,
+            deadline: path[0],
+            decisionWindow: path[1],
+            suppCount: inf.s,
+            suppNote: inf.n,
+            scholarshipDeadline: "",
+            honorsDeadline: "",
+            portfolioDeadline: "",
+            interviewDeadline: "",
+            platform:
+              x[0].startsWith("UC ") || x[0] == "UCLA"
+                ? "UC application"
+                : x[0].startsWith("Georgetown")
+                  ? "Institutional portal"
+                  : "Common App",
+            portalUrl: "",
+            portalLogin: false,
+            fee: "",
+            feeWaiver: false,
+            status: "Not started",
+            added: iso(),
+            submittedAt: "",
+            concerns: "",
+            notes: "",
+            mainEssay: {
+              status: "not started",
+              drafts: 0,
+              lastEdited: "",
+              revisionNotes: "",
+              reviewer: "",
+            },
+            essays: [],
+            testsRequired: "Verify current cycle policy",
+            scoresSent: false,
+            scoresDate: "",
+            transcriptRequested: false,
+            transcriptSent: "",
+            counselorForm: "Not started",
+            midyearRequired: false,
+            midyearSent: "",
+            interview: {
+              policy: "offered",
+              requested: false,
+              date: "",
+              name: "",
+              thanks: false,
+            },
+            portfolioRequired: false,
+            portfolioSubmitted: "",
+            honorsRequired: false,
+            honorsSubmitted: false,
+            scholarshipCount: 0,
+            scholarshipsSubmitted: false,
+            confirmation: "",
+            portalComplete: false,
+            portalCompleteDate: "",
+            decisionDate: "",
+            outcome: "",
+            waitlistAccepted: false,
+            lociSent: false,
+            lociDate: "",
+            depositDeadline: "",
+            depositPaid: false,
+            housingDeadline: "",
+            housingSubmitted: false,
+            orientation: false,
+            finalTranscriptRequested: false,
+            finalTranscriptSent: "",
+            interestLog: [],
+            rep: { name: "", email: "", territory: "" },
+            documents: [],
+            dataNote:
+              "Pathway dates and supplement counts are cycle-specific planning data for 2026–27. Confirm on the official admissions page before submitting.",
+          };
+        });
+      }
+      function enrich(s) {
+        let inf = SCHOOL_INFO[s.name];
+        if (!inf) return s;
+        let paths = Object.keys(inf.p),
+          r = paths.includes(s.round)
+            ? s.round
+            : paths.includes("RD")
+              ? "RD"
+              : paths[0];
+        s.round = r;
+        s.deadline = inf.p[r][0];
+        s.decisionWindow = inf.p[r][1];
+        s.suppCount = inf.s;
+        s.suppNote = inf.n;
+        delete s.fit;
+        delete s.fitReason;
+        return s;
+      }
+      const KEY = "collegeTrackerV2";
+      let data = (
+        JSON.parse(localStorage.getItem(KEY) || "null") || seed()
+      ).map(enrich);
+      let view = "Dashboard",
+        query = "",
+        filters = { status: "", round: "", region: "" },
+        selected = null,
+        tab = "Overview",
+        calDate = new Date(),
+        mobileStatus = "Not started";
+      function save() {
+        localStorage.setItem(KEY, JSON.stringify(data));
+        localStorage.setItem(
+          "collegeDark",
+          document.body.classList.contains("dark"),
+        );
+      }
+      if (localStorage.getItem("collegeDark") === "true")
+        document.body.classList.add("dark");
+      const esc = (s) =>
+        String(s ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      const st = (n) => STATUSES.find((x) => x[0] === n) || STATUSES[0];
+      const days = (d) =>
+        d ? Math.ceil((new Date(d + "T23:59:59") - new Date()) / 864e5) : null;
+      function urgency(d) {
+        let n = days(d);
+        if (n === null) return '<span class="muted">No date</span>';
+        if (n < 0) return '<span class="urg over">OVERDUE</span>';
+        if (n <= 7)
+          return `<span class="urg red"><i class="dot"></i> ${n}d</span>`;
+        if (n <= 14) return `<span class="urg orange">${n}d</span>`;
+        if (n <= 30) return `<span class="urg amber">${n}d</span>`;
+        return `<span class="urg">${n}d</span>`;
+      }
+      function statusControl(s, id) {
+        let a = st(s);
+        return `<span class="pill" style="color:${a[1]}"><b>${a[2]}</b><select class="pillselect" onchange="setStatus('${id}',this.value)">${STATUSES.map((x) => `<option ${x[0] === s ? "selected" : ""}>${x[0]}</option>`).join("")}</select></span>`;
+      }
+      function pathOptions(s) {
+        let inf = SCHOOL_INFO[s.name];
+        let paths = inf ? Object.keys(inf.p) : ["EA", "ED1", "ED2", "RD"];
+        return paths
+          .map(
+            (x) => `<option ${s.round === x ? "selected" : ""}>${x}</option>`,
+          )
+          .join("");
+      }
+      function setPathway(id, pathway) {
+        let s = data.find((x) => x.id === id),
+          inf = SCHOOL_INFO[s.name];
+        s.round = pathway;
+        if (inf && inf.p[pathway]) {
+          s.deadline = inf.p[pathway][0];
+          s.decisionWindow = inf.p[pathway][1];
+        }
+        save();
+        render();
+      }
+      function deadlines(s) {
+        return [
+          ["Application", s.deadline],
+          ["Scholarship", s.scholarshipDeadline],
+          ["Honors", s.honorsDeadline],
+          ["Portfolio", s.portfolioDeadline],
+          ["Interview", s.interviewDeadline],
+          ["Deposit", s.depositDeadline],
+          ["Housing", s.housingDeadline],
+        ]
+          .filter((x) => x[1])
+          .map((x) => ({ school: s.name, type: x[0], date: x[1], id: s.id }));
+      }
+      function allDeadlines() {
+        return data
+          .flatMap(deadlines)
+          .sort((a, b) => a.date.localeCompare(b.date));
+      }
+      function outstanding(s) {
+        return requiredDocs(s).filter((x) => !x.checked).length;
+      }
+      function requiredDocs(s) {
+        if (s.documents?.length) return s.documents;
+        let d = [
+          {
+            name: "Main essay",
+            required: true,
+            checked: s.mainEssay.status === "final",
+            date: "",
+          },
+          ...s.essays.map((e) => ({
+            name: e.title || "Supplement",
+            required: true,
+            checked: e.status === "final",
+            date: "",
+          })),
+          {
+            name: "Tests sent",
+            required:
+              !!s.testsRequired &&
+              !/optional|not required/i.test(s.testsRequired),
+            checked: s.scoresSent,
+            date: s.scoresDate,
+          },
+          {
+            name: "Transcript",
+            required: true,
+            checked: !!s.transcriptSent,
+            date: s.transcriptSent,
+          },
+          {
+            name: "Counselor form",
+            required: true,
+            checked: s.counselorForm === "Submitted",
+            date: "",
+          },
+        ];
+        if (s.midyearRequired)
+          d.push({
+            name: "Mid-year report",
+            required: true,
+            checked: !!s.midyearSent,
+            date: s.midyearSent,
+          });
+        if (s.portfolioRequired)
+          d.push({
+            name: "Portfolio / audition",
+            required: true,
+            checked: !!s.portfolioSubmitted,
+            date: s.portfolioSubmitted,
+          });
+        if (s.honorsRequired)
+          d.push({
+            name: "Honors application",
+            required: true,
+            checked: s.honorsSubmitted,
+            date: "",
+          });
+        return d.filter((x) => x.required);
+      }
+      function filtered() {
+        return data
+          .filter(
+            (s) =>
+              (!query ||
+                JSON.stringify(s)
+                  .toLowerCase()
+                  .includes(query.toLowerCase())) &&
+              (!filters.status || s.status === filters.status) &&
+              (!filters.round || s.round === filters.round) &&
+              (!filters.region || s.region === filters.region),
+          )
+          .sort((a, b) => {
+            let ad = days(a.deadline),
+              bd = days(b.deadline);
+            if (ad !== null && ad < 0 && !(bd !== null && bd < 0)) return -1;
+            if (bd !== null && bd < 0 && !(ad !== null && ad < 0)) return 1;
+            return (a.deadline || "9999").localeCompare(b.deadline || "9999");
+          });
+      }
+      function nav() {
+        return [
+          "Dashboard",
+          "Pipeline",
+          "Table",
+          "Calendar",
+          "Essay board",
+          "Deadlines",
+        ]
+          .map(
+            (x) =>
+              `<button class="${view === x ? "active" : ""}" onclick="go('${x}')">${x}</button>`,
+          )
+          .join("");
+      }
+      function shell(content) {
+        document.getElementById("app").innerHTML =
+          `<div class="app"><aside><div class="brand">ApplyTrack</div><div class="nav">${nav()}</div></aside><div class="shell"><header><button class="mobileNav" onclick="mobileMenu()">☰</button><input id="search" class="search" placeholder="Search schools, notes, and prompts…  /" value="${esc(query)}" oninput="query=this.value;render()"><button onclick="toggleDark()">◐</button><button class="primary" onclick="newSchool()">+ School</button></header><main>${content}</main></div></div>${selected ? drawer() : ""}`;
+      }
+      function dashboard() {
+        let ds = allDeadlines(),
+          now7 = ds.filter((x) => {
+            let n = days(x.date);
+            return n >= 0 && n <= 7;
+          }),
+          now30 = ds.filter((x) => {
+            let n = days(x.date);
+            return n >= 0 && n <= 30;
+          }),
+          over = ds.filter((x) => days(x.date) < 0);
+        let submitted = data.filter((x) => x.status === "Submitted").length,
+          dec = data.filter((x) => x.status === "Decision received").length;
+        return `<div class="titlebar"><div><div class="overline">2026–27 application cycle</div><h1>Dashboard</h1></div><button onclick="notifyPermission()">Enable notifications</button></div><div class="cards">${STATUSES.map((x) => `<div class="metric" style="border-top:3px solid ${x[1]}"><span>${x[2]} ${x[0]}</span><b>${data.filter((s) => s.status === x[0]).length}</b></div>`).join("")}</div><div class="grid2"><div class="panel"><h2>Action needed</h2>${listDeadlines([...over, ...now7].slice(0, 12))}</div><div class="panel"><h2>Weekly digest</h2><p><b>${now30.length}</b> deadlines in 30 days</p><p><b>${data.flatMap((s) => s.essays).filter((e) => e.status === "not started").length}</b> unstarted supplements</p><p><b>${submitted}</b> submitted · <b>${dec}</b> decisions received</p></div></div><div class="grid2"><div class="panel"><h2>Next 30 days</h2>${listDeadlines(now30.slice(0, 15))}</div><div class="panel"><h2>Interest nudges</h2>${
+          data
+            .filter(
+              (s) =>
+                s.interestRating !== "Not considered" &&
+                (!s.interestLog.length ||
+                  days(
+                    s.interestLog
+                      .map((x) => x.date)
+                      .sort()
+                      .at(-1),
+                  ) < -30),
+            )
+            .map(
+              (s) =>
+                `<p><a href="#" onclick="openSchool('${s.id}')">${esc(s.name)}</a> <span class="flag">Interest ${s.interestRating.toLowerCase()}</span><br><span class="muted">No interest action logged in 30 days</span></p>`,
+            )
+            .join("") || '<div class="empty">All caught up.</div>'
+        }</div></div>`;
+      }
+      function listDeadlines(a) {
+        return a.length
+          ? a
+              .map(
+                (x) =>
+                  `<p><a href="#" onclick="openSchool('${x.id}')">${esc(x.school)}</a> · ${x.type} <span class="muted">${x.date}</span> ${urgency(x.date)}</p>`,
+              )
+              .join("")
+          : '<div class="empty">No deadlines here yet.</div>';
+      }
+      function toolbar() {
+        return `<div class="toolbar"><select onchange="filters.status=this.value;render()"><option value="">All statuses</option>${STATUSES.map((x) => `<option ${filters.status === x[0] ? "selected" : ""}>${x[0]}</option>`)}</select><select onchange="filters.round=this.value;render()"><option value="">All pathways</option>${["EA", "REA", "ED1", "ED2", "RD"].map((x) => `<option ${filters.round === x ? "selected" : ""}>${x}</option>`)}</select><select onchange="filters.region=this.value;render()"><option value="">All regions</option>${[...new Set(data.map((x) => x.region))].map((x) => `<option ${filters.region === x ? "selected" : ""}>${x}</option>`)}</select><button onclick="exportCSV()">Export CSV</button><button onclick="document.getElementById('csv').click()">Import CSV</button><input id="csv" hidden type="file" accept=".csv" onchange="importCSV(this.files[0])"><button onclick="exportJSON()">Export JSON</button><button onclick="document.getElementById('json').click()">Import JSON</button><input id="json" hidden type="file" accept=".json" onchange="importJSON(this.files[0])"><button class="danger" onclick="resetSeed()">Reset seed</button></div>`;
+      }
+      function tableView() {
+        return `<div class="titlebar"><h1>Schools</h1><span class="muted">${filtered().length} of ${data.length}</span></div>${toolbar()}<div class="tablewrap"><table><thead><tr><th>School</th><th>Status</th><th>Pathway</th><th>Deadline</th><th>Days</th><th>Decision release</th><th>Supps</th><th>Region</th><th>Platform</th><th>Applicant portal</th></tr></thead><tbody>${filtered()
+          .map((s) => {
+            let a = st(s.status);
+            return `<tr class="school" style="--status:${a[1]}"><td><a href="#" onclick="openSchool('${s.id}')"><b>${esc(s.name)}</b></a><br><span class="muted">${esc(s.city)}, ${s.state}</span> ${s.interestRating !== "Not considered" ? `<span class="flag">◆ interest counts</span>` : ""}</td><td>${statusControl(s.status, s.id)}</td><td><select onchange="setPathway('${s.id}',this.value)">${pathOptions(s)}</select></td><td>${s.deadline || "—"}</td><td>${urgency(s.deadline)}</td><td>${esc(s.decisionWindow || "—")}</td><td><span class="supp-badge">${s.suppCount} required</span></td><td>${s.region}</td><td>${s.platform}</td><td>${s.portalUrl ? `<a href="${esc(portalHref(s.portalUrl))}" target="_blank" rel="noopener">Open ↗</a>` : `<a href="#" onclick="openSchool('${s.id}')">Add link</a>`}</td></tr>`;
+          })
+          .join("")}</tbody></table></div>`;
+      }
+      function pipeline() {
+        return `<div class="titlebar"><h1>Pipeline</h1><select class="mobileNav" onchange="mobileStatus=this.value;render()">${STATUSES.map((x) => `<option ${mobileStatus === x[0] ? "selected" : ""}>${x[0]}</option>`)}</select></div><div class="kanban">${STATUSES.map(
+          (a) =>
+            `<section class="column ${mobileStatus === a[0] ? "mobile-active" : ""}" style="--c:${a[1]}" ondragover="event.preventDefault()" ondrop="setStatus(event.dataTransfer.getData('text'), '${a[0]}')"><h2>${a[2]} ${a[0]} · ${data.filter((s) => s.status === a[0]).length}</h2>${data
+              .filter((s) => s.status === a[0])
+              .map(
+                (s) =>
+                  `<div class="kcard" draggable="true" ondragstart="event.dataTransfer.setData('text','${s.id}')" onclick="openSchool('${s.id}')"><b>${esc(s.name)}</b><p>${s.round} · ${s.deadline || "No deadline"} ${urgency(s.deadline)}</p><span class="muted">Decision: ${esc(s.decisionWindow)} · ${s.suppCount} supps</span></div>`,
+              )
+              .join("")}</section>`,
+        ).join("")}</div>`;
+      }
+      function calendar() {
+        let y = calDate.getFullYear(),
+          m = calDate.getMonth(),
+          first = new Date(y, m, 1),
+          start = new Date(y, m, 1 - first.getDay()),
+          cells = [];
+        for (let i = 0; i < 42; i++) {
+          let d = new Date(start);
+          d.setDate(start.getDate() + i);
+          let key = d.toISOString().slice(0, 10),
+            ev = allDeadlines().filter((x) => x.date === key);
+          cells.push(
+            `<div class="day ${d.getMonth() !== m ? "off" : ""}"><b>${d.getDate()}</b>${ev.map((x) => `<div class="event" onclick="openSchool('${x.id}')">${x.type}: ${esc(x.school)}</div>`).join("")}</div>`,
+          );
+        }
+        return `<div class="titlebar"><h1>Calendar · ${calDate.toLocaleString("default", { month: "long", year: "numeric" })}</h1><div><button onclick="calDate.setMonth(calDate.getMonth()-1);render()">←</button><button onclick="calDate=new Date();render()">Today</button><button onclick="calDate.setMonth(calDate.getMonth()+1);render()">→</button></div></div><div class="calendar">${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((x) => `<div class="day"><b>${x}</b></div>`).join("")}${cells.join("")}</div>`;
+      }
+      function essayBoard() {
+        let e = data.flatMap((s) => [
+          {
+            ...s.mainEssay,
+            title: "Common App personal essay",
+            school: s.name,
+            id: s.id,
+            main: true,
+          },
+          ...s.essays.map((x) => ({ ...x, school: s.name, id: s.id })),
+        ]);
+        return `<div class="titlebar"><h1>Essay board</h1><span>${e.length} essays</span></div><div class="grid3">${[
+          "not started",
+          "drafting",
+          "with reviewer",
+          "revised",
+          "final",
+        ]
+          .map(
+            (stat) =>
+              `<div class="panel"><h2>${stat}</h2>${
+                e
+                  .filter((x) => x.status === stat)
+                  .map(
+                    (x) =>
+                      `<div class="repeat" onclick="openSchool('${x.id}','Essays')"><b>${esc(x.school)}</b><br>${esc(x.title || "Supplement")}<br><span class="muted">${x.drafts || 0} drafts ${x.wordLimit ? "· " + x.wordLimit + " words" : ""}</span></div>`,
+                  )
+                  .join("") || '<div class="empty">None</div>'
+              }</div>`,
+          )
+          .join("")}</div>`;
+      }
+      function deadlinesView() {
+        return `<div class="titlebar"><h1>All deadlines</h1><span>${allDeadlines().length} dated items</span></div><div class="panel">${listDeadlines(allDeadlines())}</div>`;
+      }
+      function drawer() {
+        let s = data.find((x) => x.id === selected);
+        if (!s) return "";
+        return `<div class="drawer"><div class="drawerhead"><div><div class="overline">${esc(s.city)}, ${s.state}</div><h1>${esc(s.name)}</h1></div><button onclick="selected=null;render()">✕</button></div><div class="tabs">${["Overview", "Essays", "Interviews", "Documents", "Interest log", "Notes"].map((x) => `<button class="${tab === x ? "active" : ""}" onclick="tab='${x}';render()">${x}</button>`).join("")}</div>${detailTab(s)}</div>`;
+      }
+      function field(s, k, label, type = "text", opts = []) {
+        let val = s[k] ?? "";
+        if (type === "checkbox")
+          return `<div class="field"><label>${label}</label><label class="check"><input type="checkbox" ${val ? "checked" : ""} onchange="upd('${s.id}','${k}',this.checked)"> Yes</label></div>`;
+        if (type === "textarea")
+          return `<div class="field wide"><label>${label}</label><textarea rows="4" onchange="upd('${s.id}','${k}',this.value)">${esc(val)}</textarea></div>`;
+        if (type === "select")
+          return `<div class="field"><label>${label}</label><select onchange="upd('${s.id}','${k}',this.value)">${opts.map((x) => `<option ${val == x ? "selected" : ""}>${x}</option>`)}</select></div>`;
+        return `<div class="field"><label>${label}</label><input type="${type}" value="${esc(val)}" onchange="upd('${s.id}','${k}',this.value)"></div>`;
+      }
+      function portalHref(url) {
+        if (!url) return "";
+        return /^https?:\/\//i.test(url) ? url : "https://" + url;
+      }
+      function copyPortal(id) {
+        let s = data.find((x) => x.id === id);
+        if (!s.portalUrl) return toast("Add a portal link first");
+        navigator.clipboard
+          .writeText(portalHref(s.portalUrl))
+          .then(() => toast("Portal link copied"));
+      }
+      function portalCard(s) {
+        let href = portalHref(s.portalUrl);
+        return `<div class="portal-card"><div class="overline" style="color:#a5f3fc">Applicant portal</div><h2 style="margin:4px 0;color:white">Your direct login link</h2><div class="portal-row"><input type="url" value="${esc(s.portalUrl)}" placeholder="Paste the applicant portal link when it arrives" onchange="upd('${s.id}','portalUrl',this.value)">${href ? `<a href="${esc(href)}" target="_blank" rel="noopener">Open portal ↗</a>` : `<button onclick="toast('Paste your portal link first')">Open portal ↗</button>`}<button onclick="copyPortal('${s.id}')">Copy</button></div><label class="portal-status"><input type="checkbox" ${s.portalLogin ? "checked" : ""} onchange="upd('${s.id}','portalLogin',this.checked)"> Login created</label></div>`;
+      }
+      function detailTab(s) {
+        if (tab === "Overview")
+          return `<div class="pathway-card"><div class="overline" style="color:#dbeafe">Application pathway</div><div class="grid3"><div><select onchange="setPathway('${s.id}',this.value)">${pathOptions(s)}</select></div><div><b>Deadline</b><br>${s.deadline}</div><div><b>Decision release</b><br><span class="decision-window">${esc(s.decisionWindow)}</span></div></div></div>${portalCard(s)}<div class="panel" style="margin-top:12px"><p><span class="supp-badge">${s.suppCount} required supplement${s.suppCount === 1 ? "" : "s"}</span></p><p class="muted">${esc(s.suppNote)}</p><div class="formgrid">${field(s, "name", "School name")}${field(s, "city", "City")}${field(s, "state", "State")}${field(s, "region", "Region")}${field(s, "distance", "Distance from home")}${field(s, "scholarshipDeadline", "Scholarship deadline", "date")}${field(s, "honorsDeadline", "Honors deadline", "date")}${field(s, "portfolioDeadline", "Portfolio deadline", "date")}${field(s, "interviewDeadline", "Interview request deadline", "date")}${field(s, "platform", "Application platform", "select", ["Common App", "Coalition", "Institutional portal", "UC application", "Other"])}${field(s, "fee", "Application fee", "number")}${field(s, "feeWaiver", "Fee waiver used", "checkbox")}${field(s, "concerns", "Concerns / red flags", "textarea")}<div class="field wide"><label>Status</label>${statusControl(s.status, s.id)}</div></div><p class="muted">${esc(s.dataNote)}</p><button class="danger" onclick="deleteSchool('${s.id}')">Delete school</button></div>`;
+        if (tab === "Essays")
+          return `<div class="panel"><p><span class="supp-badge">${s.suppCount} required for Arts & Sciences</span></p><p class="muted">${esc(s.suppNote)}</p><h2>Main personal essay</h2><div class="formgrid">${nestedField(s, "mainEssay.status", "Status", "select", ["not started", "drafting", "with reviewer", "revised", "final"])}${nestedField(s, "mainEssay.drafts", "Draft count", "number")}${nestedField(s, "mainEssay.lastEdited", "Last edited", "date")}${nestedField(s, "mainEssay.reviewer", "Reviewer")}${nestedField(s, "mainEssay.revisionNotes", "Revision notes", "textarea")}</div><h2>Supplemental essays</h2>${s.essays.map((e, i) => essayForm(s, e, i)).join("")}<button onclick="addEssay('${s.id}')">+ Add supplement</button></div>`;
+        if (tab === "Interviews")
+          return `<div class="panel"><div class="formgrid">${nestedField(s, "interview.policy", "Policy", "select", ["evaluative", "informational", "offered", "not offered"])}${nestedField(s, "interview.requested", "Requested", "checkbox")}${nestedField(s, "interview.date", "Scheduled date", "datetime-local")}${nestedField(s, "interview.name", "Interviewer name")}${nestedField(s, "interview.thanks", "Thank-you sent", "checkbox")}${field(s, "portfolioRequired", "Portfolio / audition required", "checkbox")}${field(s, "portfolioSubmitted", "Portfolio submitted", "date")}${field(s, "honorsRequired", "Honors college required", "checkbox")}${field(s, "honorsSubmitted", "Honors application submitted", "checkbox")}${field(s, "scholarshipCount", "Separate scholarship count", "number")}${field(s, "scholarshipsSubmitted", "Scholarships submitted", "checkbox")}</div></div>`;
+        if (tab === "Documents") return docsTab(s);
+        if (tab === "Interest log") return interestTab(s);
+        return `<div class="panel"><div class="formgrid">${field(s, "notes", "General notes", "textarea")}${nestedField(s, "rep.name", "Admissions rep name")}${nestedField(s, "rep.email", "Admissions rep email", "email")}${nestedField(s, "rep.territory", "Territory")}</div></div>`;
+      }
+      function nestedField(s, path, label, type = "text", opts = []) {
+        let [a, b] = path.split("."),
+          v = s[a][b];
+        if (type === "checkbox")
+          return `<div class="field"><label>${label}</label><input type="checkbox" ${v ? "checked" : ""} onchange="updNested('${s.id}','${a}','${b}',this.checked)"></div>`;
+        if (type === "textarea")
+          return `<div class="field wide"><label>${label}</label><textarea onchange="updNested('${s.id}','${a}','${b}',this.value)">${esc(v)}</textarea></div>`;
+        if (type === "select")
+          return `<div class="field"><label>${label}</label><select onchange="updNested('${s.id}','${a}','${b}',this.value)">${opts.map((x) => `<option ${v === x ? "selected" : ""}>${x}</option>`)}</select></div>`;
+        return `<div class="field"><label>${label}</label><input type="${type}" value="${esc(v)}" onchange="updNested('${s.id}','${a}','${b}',this.value)"></div>`;
+      }
+      function essayForm(s, e, i) {
+        return `<div class="repeat"><div class="formgrid"><div class="field"><label>Title</label><input value="${esc(e.title)}" onchange="updList('${s.id}','essays',${i},'title',this.value)"></div><div class="field"><label>Word limit</label><input type="number" value="${e.wordLimit || ""}" onchange="updList('${s.id}','essays',${i},'wordLimit',this.value)"></div><div class="field"><label>Status</label><select onchange="updList('${s.id}','essays',${i},'status',this.value)">${["not started", "drafting", "with reviewer", "revised", "final"].map((x) => `<option ${e.status === x ? "selected" : ""}>${x}</option>`)}</select></div><div class="field"><label>Draft count</label><input type="number" value="${e.drafts || 0}" onchange="updList('${s.id}','essays',${i},'drafts',this.value)"></div><div class="field wide"><label>Prompt text</label><textarea oninput="wordCount(this,${e.wordLimit || 0})" onchange="updList('${s.id}','essays',${i},'prompt',this.value)">${esc(e.prompt)}</textarea><span class="muted">Prompt words: <b>0</b></span></div><div class="field"><label>Reviewer</label><input value="${esc(e.reviewer || "")}" onchange="updList('${s.id}','essays',${i},'reviewer',this.value)"></div><div class="field wide"><label>Revision notes</label><textarea onchange="updList('${s.id}','essays',${i},'revisionNotes',this.value)">${esc(e.revisionNotes || "")}</textarea></div></div><button class="danger" onclick="removeList('${s.id}','essays',${i})">Remove</button></div>`;
+      }
+      function docsTab(s) {
+        let docs = requiredDocs(s);
+        return `<div class="panel"><div class="formgrid">${field(s, "testsRequired", "Standardized tests required")}${field(s, "scoresSent", "Scores sent", "checkbox")}${field(s, "scoresDate", "Scores sent date", "date")}${field(s, "transcriptRequested", "Transcript requested", "checkbox")}${field(s, "transcriptSent", "Transcript sent date", "date")}${field(s, "counselorForm", "Counselor form", "select", ["Not started", "Requested", "Submitted"])}${field(s, "midyearRequired", "Mid-year required", "checkbox")}${field(s, "midyearSent", "Mid-year sent date", "date")}${field(s, "confirmation", "Submission confirmation #")}${field(s, "portalComplete", "Portal shows complete", "checkbox")}${field(s, "portalCompleteDate", "Portal complete date", "date")}${field(s, "decisionDate", "Decision date", "date")}${field(s, "outcome", "Outcome", "select", ["", "admit", "waitlist", "deny", "deferred"])}${field(s, "waitlistAccepted", "Waitlist spot accepted", "checkbox")}${field(s, "lociSent", "LOCI sent", "checkbox")}${field(s, "lociDate", "LOCI date", "date")}${field(s, "depositDeadline", "Deposit deadline", "date")}${field(s, "depositPaid", "Deposit paid", "checkbox")}${field(s, "housingDeadline", "Housing deadline", "date")}${field(s, "housingSubmitted", "Housing submitted", "checkbox")}${field(s, "orientation", "Orientation registered", "checkbox")}${field(s, "finalTranscriptRequested", "Final transcript requested", "checkbox")}${field(s, "finalTranscriptSent", "Final transcript sent", "date")}</div><h2>Submission checklist</h2>${docs.map((d, i) => `<label class="repeat check"><input type="checkbox" ${d.checked ? "checked" : ""} onchange="checkDoc('${s.id}',${i},this.checked)">${esc(d.name)} ${d.date ? `<span class="muted">${d.date}</span>` : ""}</label>`).join("") || '<div class="empty">Generated when status becomes Ready to submit.</div>'}</div>`;
+      }
+      function interestTab(s) {
+        return `<div class="panel"><p><span class="flag">Interest rating: ${s.interestRating}</span></p>${s.interestLog.map((x, i) => `<div class="repeat"><b>${esc(x.type)}</b> · ${x.date}<button style="float:right" class="danger" onclick="removeList('${s.id}','interestLog',${i})">Remove</button></div>`).join("")}<button onclick="addInterest('${s.id}')">+ Log interest action</button></div>`;
+      }
+      function render() {
+        let content =
+          view === "Dashboard"
+            ? dashboard()
+            : view === "Pipeline"
+              ? pipeline()
+              : view === "Table"
+                ? tableView()
+                : view === "Calendar"
+                  ? calendar()
+                  : view === "Essay board"
+                    ? essayBoard()
+                    : deadlinesView();
+        shell(content);
+      }
+      function go(v) {
+        view = v;
+        render();
+      }
+      function openSchool(id, t) {
+        selected = id;
+        if (t) tab = t;
+        render();
+      }
+      function upd(id, k, v) {
+        let s = data.find((x) => x.id === id);
+        s[k] = v;
+        save();
+        render();
+      }
+      function updNested(id, a, b, v) {
+        data.find((x) => x.id === id)[a][b] = v;
+        save();
+        render();
+      }
+      function updList(id, l, i, k, v) {
+        data.find((x) => x.id === id)[l][i][k] = v;
+        save();
+        render();
+      }
+      function removeList(id, l, i) {
+        if (confirm("Remove this item?")) {
+          data.find((x) => x.id === id)[l].splice(i, 1);
+          save();
+          render();
+        }
+      }
+      function setStatus(id, v) {
+        let s = data.find((x) => x.id === id);
+        if (v === "Ready to submit" && !s.documents.length)
+          s.documents = requiredDocs(s);
+        if (v === "Submitted") {
+          let missing = requiredDocs(s).filter((x) => !x.checked);
+          if (
+            missing.length &&
+            !confirm(
+              `${missing.length} required items are unchecked. Override and mark submitted?`,
+            )
+          ) {
+            render();
+            return;
+          }
+          s.submittedAt = iso();
+          if (!s.documents.length) s.documents = requiredDocs(s);
+        }
+        if (v === "Decision received") {
+          let out = prompt(
+            "Outcome: admit, waitlist, deny, or deferred",
+            s.outcome || "",
+          );
+          if (!out) {
+            render();
+            return;
+          }
+          s.outcome = out;
+          s.decisionDate =
+            prompt(
+              "Decision date (YYYY-MM-DD)",
+              new Date().toISOString().slice(0, 10),
+            ) || "";
+        }
+        s.status = v;
+        save();
+        render();
+      }
+      function checkDoc(id, i, v) {
+        let s = data.find((x) => x.id === id);
+        if (!s.documents.length) s.documents = requiredDocs(s);
+        s.documents[i].checked = v;
+        s.documents[i].date = v ? new Date().toISOString().slice(0, 10) : "";
+        save();
+        render();
+      }
+      function addEssay(id) {
+        data
+          .find((x) => x.id === id)
+          .essays.push({
+            title: "New supplement",
+            prompt: "",
+            wordLimit: 0,
+            status: "not started",
+            drafts: 0,
+            reviewer: "",
+            revisionNotes: "",
+          });
+        save();
+        render();
+      }
+      function addInterest(id) {
+        let type = prompt("Action type (visit, webinar, email, fair, etc.)");
+        if (type) {
+          data
+            .find((x) => x.id === id)
+            .interestLog.push({
+              type,
+              date: new Date().toISOString().slice(0, 10),
+            });
+          save();
+          render();
+        }
+      }
+      function newSchool() {
+        let name = prompt("School name");
+        if (!name) return;
+        let s = seed()[0];
+        s.id = uid();
+        s.name = name;
+        s.city = "";
+        s.state = "";
+        s.region = "";
+        s.interestRating = "Not considered";
+        data.unshift(s);
+        save();
+        selected = s.id;
+        render();
+      }
+      function deleteSchool(id) {
+        if (confirm("Delete this school and all of its data?")) {
+          data = data.filter((x) => x.id !== id);
+          selected = null;
+          save();
+          render();
+        }
+      }
+      function resetSeed() {
+        if (
+          confirm(
+            "Reset everything to the original 27 schools? This replaces current data.",
+          )
+        ) {
+          data = seed();
+          save();
+          render();
+        }
+      }
+      function toggleDark() {
+        document.body.classList.toggle("dark");
+        save();
+      }
+      function wordCount(el, limit) {
+        let n = el.value.trim() ? el.value.trim().split(/\s+/).length : 0,
+          b = el.nextElementSibling.querySelector("b");
+        b.textContent = n;
+        b.style.color = limit && n > limit ? "#dc2626" : "";
+      }
+      function notifyPermission() {
+        if ("Notification" in window)
+          Notification.requestPermission().then((x) =>
+            toast("Notification permission: " + x),
+          );
+        else toast("Browser notifications unavailable");
+      }
+      function toast(t) {
+        let x = document.createElement("div");
+        x.className = "toast";
+        x.textContent = t;
+        document.body.appendChild(x);
+        setTimeout(() => x.remove(), 2200);
+      }
+      function dl(name, text, type) {
+        let a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([text], { type }));
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+      function exportJSON() {
+        dl(
+          "college-tracker.json",
+          JSON.stringify(data, null, 2),
+          "application/json",
+        );
+      }
+      function importJSON(f) {
+        if (!f) return;
+        let r = new FileReader();
+        r.onload = () => {
+          try {
+            let x = JSON.parse(r.result);
+            if (!Array.isArray(x)) throw 0;
+            if (confirm("Replace current data with this JSON?")) {
+              data = x;
+              save();
+              render();
+            }
+          } catch {
+            alert("Invalid tracker JSON");
+          }
+        };
+        r.readAsText(f);
+      }
+      function exportCSV() {
+        let h = [
+          "name",
+          "city",
+          "state",
+          "region",
+          "distance",
+          "round",
+          "deadline",
+          "scholarshipDeadline",
+          "honorsDeadline",
+          "portfolioDeadline",
+          "interviewDeadline",
+          "platform",
+          "portalUrl",
+          "portalLogin",
+          "fee",
+          "feeWaiver",
+          "status",
+          "decisionWindow",
+          "suppCount",
+          "suppNote",
+          "concerns",
+          "notes",
+        ];
+        let q = (v) => '"' + String(v ?? "").replaceAll('"', '""') + '"';
+        dl(
+          "college-tracker.csv",
+          [
+            h.join(","),
+            ...data.map((s) => h.map((k) => q(s[k])).join(",")),
+          ].join("\n"),
+          "text/csv",
+        );
+      }
+      function importCSV(f) {
+        if (!f) return;
+        let r = new FileReader();
+        r.onload = () => {
+          let lines = r.result.split(/\r?\n/).filter(Boolean),
+            parse = (l) => {
+              let a = [],
+                x = "",
+                q = false;
+              for (let i = 0; i < l.length; i++) {
+                let c = l[i];
+                if (c === '"' && l[i + 1] === '"') {
+                  x += '"';
+                  i++;
+                } else if (c === '"') q = !q;
+                else if (c === "," && !q) {
+                  a.push(x);
+                  x = "";
+                } else x += c;
+              }
+              a.push(x);
+              return a;
+            },
+            h = parse(lines.shift());
+          for (let line of lines) {
+            let o = Object.fromEntries(parse(line).map((v, i) => [h[i], v])),
+              s = seed()[0];
+            Object.assign(s, o, { id: uid() });
+            data.push(s);
+          }
+          save();
+          render();
+        };
+        r.readAsText(f);
+      }
+      function mobileMenu() {
+        let x = document.querySelector("aside");
+        x.style.display = x.style.display === "block" ? "none" : "block";
+        x.style.position = "fixed";
+        x.style.zIndex = 30;
+        x.style.width = "230px";
+      }
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === "/" &&
+          !/input|textarea/i.test(document.activeElement.tagName)
+        ) {
+          e.preventDefault();
+          document.getElementById("search").focus();
+        }
+        if (
+          e.key === "n" &&
+          !/input|textarea/i.test(document.activeElement.tagName)
+        )
+          newSchool();
+        if (e.key === "Escape" && selected) {
+          selected = null;
+          render();
+        }
+      });
+      render();
+    </script>
+  </body>
+</html>
